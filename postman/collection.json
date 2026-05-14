@@ -1,0 +1,434 @@
+{
+  "info": {
+    "name": "IT Asset Manager",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "E2E Scenario",
+      "item": [
+        {
+          "name": "1. creare angajat A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('angajat_a_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('are id', () => pm.expect(json.id).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/angajati",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nume\": \"Popa\",\n  \"prenume\": \"Alexandru\",\n  \"email\": \"alexandru.popa@company.ro\",\n  \"departament\": \"IT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2. creare angajat B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('angajat_b_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/angajati",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nume\": \"Dumitrescu\",\n  \"prenume\": \"Elena\",\n  \"email\": \"elena.dumitrescu@company.ro\",\n  \"departament\": \"HR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3. creare echipament",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('echipament_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('serial unic', () => pm.expect(json.serial).to.eql('SN-E2E-001'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/echipamente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial\": \"SN-E2E-001\",\n  \"denumire\": \"Laptop E2E Test\",\n  \"tip\": \"laptop\",\n  \"producator\": \"Dell\",\n  \"model\": \"Latitude 5520\",\n  \"data_achizitie\": \"2021-01-10\",\n  \"valoare\": 4000,\n  \"magazie_id\": \"m1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4. creare componenta si asociere la echipament",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('componenta_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('asociata la echipament', () => pm.expect(json.echipament_id).to.eql(pm.environment.get('echipament_id')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/componente",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"echipament_id\": \"{{echipament_id}}\",\n  \"tip\": \"RAM\",\n  \"descriere\": \"Kingston 16GB DDR4\",\n  \"serial_componenta\": \"KNG-E2E-001\"\n}"
+            }
+          }
+        },
+        {
+          "name": "5. alocare echipament la angajat A (din magazie)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('op_alocare_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('status in_curs', () => pm.expect(json.status).to.eql('in_curs'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/operatiuni/alocare-din-magazie",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"echipament_id\": \"{{echipament_id}}\",\n  \"angajat_destinatie_id\": \"{{angajat_a_id}}\",\n  \"initiat_de\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "6. finalizare alocare la angajat A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('operatiune finalizata', () => pm.expect(pm.response.json().status).to.eql('finalizat'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/operatiuni/{{op_alocare_id}}/finalizare"
+          }
+        },
+        {
+          "name": "7. mutare echipament angajat A -> angajat B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('op_mutare_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('tip mutare_angajat', () => pm.expect(json.tip).to.eql('mutare_angajat'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/operatiuni/mutare-angajat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"echipament_id\": \"{{echipament_id}}\",\n  \"angajat_destinatie_id\": \"{{angajat_b_id}}\",\n  \"initiat_de\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "8. finalizare mutare angajat A -> angajat B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('operatiune finalizata', () => pm.expect(pm.response.json().status).to.eql('finalizat'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/operatiuni/{{op_mutare_id}}/finalizare"
+          }
+        },
+        {
+          "name": "9. mutare echipament angajat B -> magazie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('op_returnare_id', json.id);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('tip returnare_magazie', () => pm.expect(json.tip).to.eql('returnare_magazie'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/operatiuni/returnare-magazie",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"echipament_id\": \"{{echipament_id}}\",\n  \"magazie_destinatie_id\": \"m1\",\n  \"initiat_de\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "10. finalizare mutare in magazie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('operatiune finalizata', () => pm.expect(pm.response.json().status).to.eql('finalizat'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/operatiuni/{{op_returnare_id}}/finalizare"
+          }
+        },
+        {
+          "name": "11. raport inventar magazie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('are date', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/rapoarte/inventar-magazie"
+          }
+        },
+        {
+          "name": "12. test casare respinsa (vechime < 5 ani)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('eroare vechime', () => pm.expect(pm.response.json().error).to.include('vechimea minima'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/casare/{{echipament_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"initiat_de\": \"admin\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Angajati",
+      "item": [
+        {
+          "name": "GET toti angajatii",
+          "request": { "method": "GET", "url": "{{base_url}}/api/angajati" }
+        },
+        {
+          "name": "GET angajat dupa id",
+          "request": { "method": "GET", "url": "{{base_url}}/api/angajati/{{angajat_a_id}}" }
+        },
+        {
+          "name": "PUT modifica angajat",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/angajati/{{angajat_a_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"departament\": \"DevOps\"\n}" }
+          }
+        },
+        {
+          "name": "DELETE dezactiveaza angajat",
+          "request": { "method": "DELETE", "url": "{{base_url}}/api/angajati/{{angajat_a_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Echipamente",
+      "item": [
+        {
+          "name": "GET toate echipamentele",
+          "request": { "method": "GET", "url": "{{base_url}}/api/echipamente" }
+        },
+        {
+          "name": "GET echipamente cu filtrare si paginare",
+          "request": { "method": "GET", "url": "{{base_url}}/api/echipamente?page=1&limit=5&sort=denumire&order=asc" }
+        },
+        {
+          "name": "GET echipament dupa id",
+          "request": { "method": "GET", "url": "{{base_url}}/api/echipamente/{{echipament_id}}" }
+        },
+        {
+          "name": "PUT modifica echipament",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/echipamente/{{echipament_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"denumire\": \"Laptop E2E Test - updated\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Componente",
+      "item": [
+        {
+          "name": "GET toate componentele",
+          "request": { "method": "GET", "url": "{{base_url}}/api/componente" }
+        },
+        {
+          "name": "GET componente dupa echipament",
+          "request": { "method": "GET", "url": "{{base_url}}/api/componente?echipament_id={{echipament_id}}" }
+        },
+        {
+          "name": "PATCH asociere componenta la alt echipament",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/componente/{{componenta_id}}/asociere",
+            "body": { "mode": "raw", "raw": "{\n  \"echipament_id\": \"{{echipament_id}}\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "QR",
+      "item": [
+        {
+          "name": "POST generare QR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('qr_token', json.token);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/qr/generare/{{echipament_id}}"
+          }
+        },
+        {
+          "name": "POST regenerare QR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('qr_token', json.token);",
+                  "pm.test('status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/qr/regenerare/{{echipament_id}}"
+          }
+        },
+        {
+          "name": "GET rezolvare token",
+          "request": { "method": "GET", "url": "{{base_url}}/api/qr/rezolvare/{{qr_token}}" }
+        }
+      ]
+    },
+    {
+      "name": "Rapoarte",
+      "item": [
+        {
+          "name": "GET inventar angajat",
+          "request": { "method": "GET", "url": "{{base_url}}/api/rapoarte/inventar-angajat" }
+        },
+        {
+          "name": "GET inventar magazie",
+          "request": { "method": "GET", "url": "{{base_url}}/api/rapoarte/inventar-magazie" }
+        },
+        {
+          "name": "GET istoric echipament",
+          "request": { "method": "GET", "url": "{{base_url}}/api/rapoarte/istoric/{{echipament_id}}" }
+        },
+        {
+          "name": "GET eligibile casare",
+          "request": { "method": "GET", "url": "{{base_url}}/api/rapoarte/eligibile-casare" }
+        },
+        {
+          "name": "GET operatiuni in curs",
+          "request": { "method": "GET", "url": "{{base_url}}/api/rapoarte/operatiuni-in-curs" }
+        }
+      ]
+    }
+  ]
+}

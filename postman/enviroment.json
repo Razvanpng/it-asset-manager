@@ -1,0 +1,51 @@
+{
+  "name": "IT Asset Manager - Local",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "enabled": true
+    },
+    {
+      "key": "angajat_a_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "angajat_b_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "echipament_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "componenta_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "op_alocare_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "op_mutare_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "op_returnare_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "qr_token",
+      "value": "",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
