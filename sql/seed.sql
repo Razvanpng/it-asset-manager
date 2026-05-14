@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = ON;
+
 INSERT INTO angajati (id, nume, prenume, email, departament) VALUES
   ('a1', 'Popescu', 'Ion', 'ion.popescu@company.ro', 'IT'),
   ('a2', 'Ionescu', 'Maria', 'maria.ionescu@company.ro', 'HR'),
