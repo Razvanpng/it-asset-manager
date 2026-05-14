@@ -6,6 +6,7 @@ import componenteRouter from './routes/componente';
 import operatiuniRouter from './routes/operatiuni';
 import qrRouter from './routes/qr';
 import casareRouter from './routes/casare';
+import rapoarteRouter from './routes/rapoarte';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use('/api/componente', componenteRouter);
 app.use('/api/operatiuni', operatiuniRouter);
 app.use('/api/qr', qrRouter);
 app.use('/api/casare', casareRouter);
+app.use('/api/rapoarte', rapoarteRouter);
 
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
